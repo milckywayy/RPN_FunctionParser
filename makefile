@@ -1,2 +1,2 @@
-main.exe: reversePolishNotationTest.cpp reversePolishNotation.cpp
-	g++ -o main.exe reversePolishNotationTest.cpp reversePolishNotation.cpp
+main.exe: reversePolishNotationMain.cpp reversePolishNotation.cpp
+	g++ -o main.exe reversePolishNotationMain.cpp reversePolishNotation.cpp

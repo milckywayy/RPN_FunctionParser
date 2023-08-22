@@ -61,6 +61,9 @@ double ReversePolishNotation::performOperation(string op, double operand1, doubl
         return operand1 * operand2;
     }
     else if (op == "/") {
+        if (operand2 == 0) {
+            throw runtime_error("Division by zero");
+        }
         return operand1 / operand2;
     }
     else if (op == "^") {
@@ -75,23 +78,28 @@ double ReversePolishNotation::performOperation(string op, double operand1, doubl
     else if (op == "tan") {
         return tan(operand1);
     }
-    return 0.0;
+
+    throw runtime_error("Unknown operator or function");
 }
 
-void ReversePolishNotation::mathToRPN(string mathEquation) {
-    stack<string> operators;
+// Convert a regular math equation to Reverse Polish Notation (RPN)
+void ReversePolishNotation::equationToRPN(string mathEquation) {
+    stack<string> operators; // Stack to store operators and parentheses
 
-    size_t pos = 0;
+    size_t pos = 0; // Current position in the math equation
     while (pos < mathEquation.length()) {
+        // Check if the token is an operand (number)
         if (isOperandToken(mathEquation, pos)) {
             size_t endPos = pos + 1;
             while (endPos < mathEquation.length() && isOperandToken(mathEquation, endPos)) {
                 ++endPos;
             }
+            // Extract the operand and add it to the RPN token list
             onpTokens.push_back(mathEquation.substr(pos, endPos - pos));
-            pos = endPos;
+            pos = endPos; // Move the position to the end of the operand
         }
-        if (isArgumentToken(mathEquation, pos)) {
+        // Check if the token is an argument (variable x)
+        else if (isArgumentToken(mathEquation, pos)) {
             size_t endPos = pos + 1;
             while (endPos < mathEquation.length() && isOperandToken(mathEquation, endPos)) {
                 ++endPos;
@@ -99,36 +107,44 @@ void ReversePolishNotation::mathToRPN(string mathEquation) {
             onpTokens.push_back(mathEquation.substr(pos, endPos - pos));
             pos = endPos;
         }
+        // Check if the token is a known function (sin, cos, tan)
         else if (isFunctionToken(mathEquation, pos)) {
-            operators.push(mathEquation.substr(pos, 3));
+            operators.push(mathEquation.substr(pos, 3)); // Push the function onto the operator stack
             pos += 3;
         }
+        // Check if the token is an operator (+, -, *, /, ^)
         else if (isOperatorToken(mathEquation, pos)) {
             while (!operators.empty() && operators.top() != "(" && getPrecedence(operators.top()) >= getPrecedence(mathEquation.substr(pos, 1))) {
+                // Pop operators from the stack with higher precedence and add them to the RPN token list
                 onpTokens.push_back(operators.top());
                 operators.pop();
             }
             operators.push(mathEquation.substr(pos, 1));
             ++pos;
         }
+        // Handle opening parentheses
         else if (mathEquation[pos] == '(') {
-            operators.push("(");
+            operators.push("("); // Push the opening parenthesis onto the operator stack
             ++pos;
         }
+        // Handle closing parentheses
         else if (mathEquation[pos] == ')') {
             while (!operators.empty() && operators.top() != "(") {
+                // Pop operators from the stack until an opening parenthesis is encountered
                 onpTokens.push_back(operators.top());
                 operators.pop();
             }
             if (!operators.empty() && operators.top() == "(") {
-                operators.pop();
+                operators.pop(); // Pop the opening parenthesis from the stack
             }
             ++pos;
         }
         else {
-            ++pos;
+            ++pos; // Ignore spaces and other unrecognized characters
         }
     }
+
+    // Pop any remaining operators from the stack and add them to the RPN token list
     while (!operators.empty()) {
         onpTokens.push_back(operators.top());
         operators.pop();
@@ -152,10 +168,15 @@ bool ReversePolishNotation::isOperatorToken(string equation, size_t pos) {
 }
 
 ReversePolishNotation::ReversePolishNotation(string mathEquation) {
+    if (mathEquation.empty()) {
+        throw invalid_argument("Empty equation");
+    }
+
     this->mathEquation = mathEquation;
-    mathToRPN(this->mathEquation);
+    equationToRPN(this->mathEquation);
 }
 
+// Evaluate the RPN expression using provided arguments
 double ReversePolishNotation::evaluate(vector<double> *arguments) {
     stack<double> operands;
 
@@ -163,8 +184,14 @@ double ReversePolishNotation::evaluate(vector<double> *arguments) {
         if (isOperand(token)) {
             operands.push(stod(token));
         }
-        if (isArgument(token)) {
-            operands.push(arguments->at(atoi(token.c_str() + 1)));
+        else if (isArgument(token)) {
+            size_t argIndex = atoi(token.c_str() + 1);
+
+            if (argIndex >= arguments->size()) {
+                throw out_of_range("Argument index out of range");
+            }
+
+            operands.push(arguments->at(argIndex));
         }
         else if (isOperator(token)) {
             double operand2 = operands.top();
@@ -177,9 +204,14 @@ double ReversePolishNotation::evaluate(vector<double> *arguments) {
         else if (isFunction(token)) {
             double operand1 = operands.top();
             operands.pop();
+            // 0 because functions take only one argument
             double result = performOperation(token, operand1, 0);
             operands.push(result);
         }
+    }
+
+    if (operands.empty()) {
+        throw runtime_error("No result to return");
     }
 
     return operands.top();

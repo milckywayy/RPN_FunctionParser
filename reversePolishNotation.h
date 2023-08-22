@@ -20,9 +20,10 @@ private:
     bool isArgumentToken(string equation, size_t pos);
     bool isFunctionToken(string equation, size_t pos);
     bool isOperatorToken(string equation, size_t pos);
-    void mathToRPN(string mathEquation);
+    void equationToRPN(string mathEquation);
 
 public:
     ReversePolishNotation(string mathEquation);
     double evaluate(vector<double> *arguments);
 };
+
