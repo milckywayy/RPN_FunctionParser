@@ -15,6 +15,10 @@ bool ReversePolishNotation::isOperand(string token) {
     return (token.find_first_not_of("0123456789.") == string::npos);
 }
 
+bool ReversePolishNotation::isNegativeOperand(string token) {
+    return (token.length() > 1 && token[0] == '-' && isOperand(token.substr(1, token.length() - 1)));
+}
+
 bool ReversePolishNotation::isConstant(string equation) {
     return (equation[0] == '_');
 }
@@ -46,16 +50,40 @@ bool ReversePolishNotation::isOperandToken(string equation, size_t pos) {
     return (equation[pos] >= '0' && equation[pos] <= '9') || equation[pos] == '.';
 }
 
+bool ReversePolishNotation::isNegativeOperandToken(string equation, size_t pos) {
+    if (equation.length() - pos > 1) {
+        return (equation[pos] == '-' && isOperandToken(equation, pos + 1));
+    }
+    else {
+        return false;
+    }
+}
+
 bool ReversePolishNotation::isConstantToken(string equation, size_t pos) {
-    return (equation[pos] == '_');
+    if (equation.length() - pos > 1) {
+        return (equation[pos] == '_' && isOperandToken(equation, pos + 1));
+    }
+    else {
+        return false;
+    }
 }
 
 bool ReversePolishNotation::isArgumentToken(string equation, size_t pos) {
-    return (equation[pos] == 'x');
+    if (equation.length() - pos > 1) {
+        return (equation[pos] == 'x' && isOperandToken(equation, pos + 1));
+    }
+    else {
+        return false;
+    }
 }
 
 bool ReversePolishNotation::isFunctionToken(string equation, size_t pos) {
-    return (equation.substr(pos, 3) == "sin" || equation.substr(pos, 3) == "cos" || equation.substr(pos, 3) == "tan");
+    if (equation.length() - pos > 2) {
+        return (equation.substr(pos, 3) == "sin" || equation.substr(pos, 3) == "cos" || equation.substr(pos, 3) == "tan");
+    }
+    else {
+        return false;
+    }
 }
 
 bool ReversePolishNotation::isOperatorToken(string equation, size_t pos) {
@@ -134,7 +162,7 @@ void ReversePolishNotation::equationToRPN(string mathEquation) {
     size_t pos = 0; // Current position in the math equation
     while (pos < mathEquation.length()) {
         // Check if the token is an operand (number)
-        if (isOperandToken(mathEquation, pos)) {
+        if (isOperandToken(mathEquation, pos) || isNegativeOperandToken(mathEquation, pos)) {
             size_t endPos = pos + 1;
             while (endPos < mathEquation.length() && isOperandToken(mathEquation, endPos)) {
                 ++endPos;
@@ -234,7 +262,7 @@ double ReversePolishNotation::evaluate(vector<double> *arguments) {
     stack<double> operands;
 
     for (string token : onpTokens) {
-        if (isOperand(token)) {
+        if (isOperand(token) || isNegativeOperand(token)) {
             operands.push(stod(token));
         }
         else if (isConstant(token)) {
@@ -277,6 +305,9 @@ double ReversePolishNotation::evaluate(vector<double> *arguments) {
 
     if (operands.empty()) {
         throw runtime_error("No result to return");
+    }
+    else if (operands.size() > 1) {
+        throw invalid_argument("Invalid equation given");
     }
 
     return operands.top();

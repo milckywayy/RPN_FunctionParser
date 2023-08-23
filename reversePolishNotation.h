@@ -11,11 +11,13 @@ private:
     vector<string> onpTokens;
 
     bool isOperand(string token);
+    bool isNegativeOperand(string token);
     bool isConstant(string token);
     bool isArgument(string token);
     bool isOperator(string token);
     bool isFunction(string token);
     bool isOperandToken(string equation, size_t pos);
+    bool isNegativeOperandToken(string equation, size_t pos);
     bool isConstantToken(string equation, size_t pos);
     bool isArgumentToken(string equation, size_t pos);
     bool isFunctionToken(string equation, size_t pos);
