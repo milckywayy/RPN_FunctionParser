@@ -51,7 +51,7 @@ int main(int argc, char **argv) {
     }
 
     try {
-        calculator.parseEquation(mathEquation);
+        calculator.parseInfix(mathEquation);
     }
     catch (exception &e) {
         cerr << "Error: " << e.what() << endl << endl;

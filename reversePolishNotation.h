@@ -12,8 +12,8 @@ using namespace std;
 
 class ReversePolishNotation {
 private:
-    string mathEquation;
-    vector<string> onpTokens;
+    string infixEquation;
+    vector<string> EquationRPN;
 
     // <id, idLenght>
     unordered_map<string, int> operators;
@@ -39,11 +39,12 @@ private:
     double performOperation(string op, double operand1, double operand2);
     double executeFunction(string fun, double arg);
 
-    void equationToRPN(string mathEquation);
+    void infixToRPN(string infixEquation);
 
 public:
     ReversePolishNotation();
-    void parseEquation(string mathEquation);
+    void parseInfix(string EquationInfix);
+    void parseRPN(string EquationRPN);
     double evaluate(vector<double> *arguments = NULL);
     string getEquationInRPN();
 };

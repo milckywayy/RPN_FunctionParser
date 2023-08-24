@@ -1,6 +1,7 @@
 #include <iostream>
 #include <stack>
 #include <cmath>
+#include <sstream>
 #include "reversePolishNotation.h"
 #include "exceptions/argumentNotGiven.h"
 
@@ -158,7 +159,7 @@ double ReversePolishNotation::executeFunction(string fun, double arg) {
 }
 
 // Convert a regular math equation to Reverse Polish Notation (RPN)
-void ReversePolishNotation::equationToRPN(string mathEquation) {
+void ReversePolishNotation::infixToRPN(string mathEquation) {
     stack<string> operatorStack; // Stack to store operators and parentheses
 
     size_t pos = 0; // Current position in the math equation
@@ -171,7 +172,7 @@ void ReversePolishNotation::equationToRPN(string mathEquation) {
                 ++endPos;
             }
             // Extract the operand and add it to the RPN token list
-            onpTokens.push_back(mathEquation.substr(pos, endPos - pos));
+            EquationRPN.push_back(mathEquation.substr(pos, endPos - pos));
             pos = endPos; // Move the position to the end of the operand
         }
         // Check if the token is an argument (variable x)
@@ -185,12 +186,12 @@ void ReversePolishNotation::equationToRPN(string mathEquation) {
                 throw invalid_argument("Argument " + mathEquation.substr(pos, endPos - pos) + " has invalid format");
             }
 
-            onpTokens.push_back(mathEquation.substr(pos, endPos - pos));
+            EquationRPN.push_back(mathEquation.substr(pos, endPos - pos));
             pos = endPos;
         }
         // Check if the token is an costant
         else if ((tokenLenght = isSpecialToken(mathEquation, pos, constants)) != 0) {
-            onpTokens.push_back(mathEquation.substr(pos, tokenLenght));
+            EquationRPN.push_back(mathEquation.substr(pos, tokenLenght));
             pos += tokenLenght;
         }
         // Check if the token is a known function
@@ -202,7 +203,7 @@ void ReversePolishNotation::equationToRPN(string mathEquation) {
         else if ((tokenLenght = isSpecialToken(mathEquation, pos, operators)) != 0) {
             while (!operatorStack.empty() && operatorStack.top() != "(" && getPrecedence(operatorStack.top()) >= getPrecedence(mathEquation.substr(pos, tokenLenght))) {
                 // Pop operators from the stack with higher precedence and add them to the RPN token list
-                onpTokens.push_back(operatorStack.top());
+                EquationRPN.push_back(operatorStack.top());
                 operatorStack.pop();
             }
             operatorStack.push(mathEquation.substr(pos, tokenLenght));
@@ -217,7 +218,7 @@ void ReversePolishNotation::equationToRPN(string mathEquation) {
         else if (mathEquation[pos] == ')') {
             while (!operatorStack.empty() && operatorStack.top() != "(") {
                 // Pop operators from the stack until an opening parenthesis is encountered
-                onpTokens.push_back(operatorStack.top());
+                EquationRPN.push_back(operatorStack.top());
                 operatorStack.pop();
             }
             if (!operatorStack.empty() && operatorStack.top() == "(") {
@@ -236,7 +237,7 @@ void ReversePolishNotation::equationToRPN(string mathEquation) {
 
     // Pop any remaining operators from the stack and add them to the RPN token list
     while (!operatorStack.empty()) {
-        onpTokens.push_back(operatorStack.top());
+        EquationRPN.push_back(operatorStack.top());
         operatorStack.pop();
     }
 }
@@ -259,13 +260,13 @@ ReversePolishNotation::ReversePolishNotation() {
     functions["sqrt"] = 4;
 }
 
-void ReversePolishNotation::parseEquation(string mathEquation) {
-    if (mathEquation.empty()) {
+void ReversePolishNotation::parseInfix(string EquationInfix) {
+    if (EquationInfix.empty()) {
         throw invalid_argument("Empty equation");
     }
 
-    this->mathEquation = mathEquation;
-    equationToRPN(this->mathEquation);
+    this->infixEquation = EquationInfix;
+    infixToRPN(this->infixEquation);
 
     try {
         evaluate(NULL);
@@ -274,11 +275,20 @@ void ReversePolishNotation::parseEquation(string mathEquation) {
     }
 }
 
+void ReversePolishNotation::parseRPN(string EquationRPN) {
+    stringstream ss(EquationRPN);
+    string token;
+
+    while (ss >> token) {
+        this->EquationRPN.push_back(token);
+    }
+}
+
 // Evaluate the RPN expression using provided arguments
 double ReversePolishNotation::evaluate(vector<double> *arguments) {
     stack<double> operands;
 
-    for (string token : onpTokens) {
+    for (string token : EquationRPN) {
         if (isOperand(token) || isNegativeOperand(token)) {
             operands.push(stod(token));
         }
@@ -333,7 +343,7 @@ double ReversePolishNotation::evaluate(vector<double> *arguments) {
 string ReversePolishNotation::getEquationInRPN() {
     string equation = "";
 
-    for (string token : onpTokens) {
+    for (string token : EquationRPN) {
         equation += token + " ";
     }
 
