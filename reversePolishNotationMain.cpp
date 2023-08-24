@@ -14,7 +14,7 @@ void help() {
     cout << "\t- args: Numbers to be used in the equation" << endl << endl;
     cout << "Program supports:" << endl;
     cout << "\t- constants: _pi = ~3.14, _e = ~2.72" << endl;
-    cout << "\t- functions: sin(x), cos(x), tan(x)" << endl;
+    cout << "\t- functions: sin(x), cos(x), tan(x), abs(x), sqrt(x)" << endl;
     cout << "\t- arguments: x0, x1, x2 ..." << endl << endl;
     cout << "Example: ./main.exe " << '"' << "(sin( _pi/2 ) * x0) + x1" << '"' << " 2 3 (Result = 5)" << endl;
 }
