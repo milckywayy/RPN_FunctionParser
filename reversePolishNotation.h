@@ -1,3 +1,7 @@
+#ifndef REVERSE_POLISH_NOTATION_H_
+#define REVERSE_POLISH_NOTATION_H_
+
+
 #include <string>
 #include <vector>
 #include <unordered_map>
@@ -41,4 +45,7 @@ public:
     ReversePolishNotation();
     void parseEquation(string mathEquation);
     double evaluate(vector<double> *arguments = NULL);
+    string getEquationInRPN();
 };
+
+#endif

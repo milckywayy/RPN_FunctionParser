@@ -329,3 +329,13 @@ double ReversePolishNotation::evaluate(vector<double> *arguments) {
 
     return operands.top();
 }
+
+string ReversePolishNotation::getEquationInRPN() {
+    string equation = "";
+
+    for (string token : onpTokens) {
+        equation += token + " ";
+    }
+
+    return equation;
+}
