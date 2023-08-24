@@ -13,7 +13,7 @@ C++ implementation of a reverse polish notation (RPN) calculator. It allows you 
 
 The program supports following:
 - Constants: `_pi = ~3.14`, `_e = ~2.72`
-- Functions: `sin(x)`, `cos(x)`, `tan(x)`
+- Functions: `sin(x)`, `cos(x)`, `tan(x)`, `abs(x)`, `sqrt(x)`
 - Arguments: `x0`, `x1`, `x2`, ...
 
 ## Example:
